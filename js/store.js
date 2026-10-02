@@ -43,6 +43,7 @@ fuels:[{id:'f1',date:'2026-09-28',km:335200,liters:55,total:390,full:true}], doc
         cloud.from('fuel_entries').select('*').eq('vehicle_id',vid).order('date',{ascending:false}).limit(500),
         cloud.from('documents').select('*').eq('vehicle_id',vid).order('date',{ascending:true}).limit(100)
       ]);
+      if(r.data&&r.data.length===0&&state.records.length>0){ try{ for(const lr of state.records){ await cloud.from('service_records').insert({user_id:user.id,vehicle_id:vid,date:lr.date,km:lr.km,category:lr.category,part:lr.part||'',brand:lr.brand||'',spec:lr.spec||'',condition:lr.condition,part_cost:lr.partCost||0,labor_cost:lr.laborCost||0,place:lr.place||'',notes:lr.notes||''}); } }catch(e){ console.warn('seedCloud',e); } const rr=await cloud.from('service_records').select('*').eq('vehicle_id',vid).order('date',{ascending:false}).limit(500); if(rr.data) r=rr; }
       if(r.data) state.records=r.data.map(x=>({id:x.id,date:x.date,km:x.km,category:x.category,part:x.part,brand:x.brand,spec:x.spec,condition:x.condition,partCost:Number(x.part_cost),laborCost:Number(x.labor_cost),place:x.place,notes:x.notes}));
       if(f.data) state.fuels=f.data.map(x=>({id:x.id,date:x.date,km:x.km,liters:Number(x.liters),total:Number(x.total),full:x.full_tank}));
       if(d.data&&d.data.length) state.docs=d.data.map(x=>({id:x.id,type:x.type,date:x.date,km:x.km||'',note:x.note||''}));
