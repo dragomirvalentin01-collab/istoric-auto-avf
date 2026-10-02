@@ -99,10 +99,11 @@ function renderPresets(){
 }
 
 //Events
-$('#recordForm').onsubmit=e=>{e.preventDefault();
+$('#recordForm').onsubmit=async e=>{e.preventDefault();
   const r={date:$('#fDate').value,km:Number($('#fKm').value),category:$('#fCat').value,part:$('#fPart').value,brand:$('#fBrand').value,spec:$('#fSpec').value,condition:condVal,partCost:Number($('#fPartCost').value)||0,laborCost:Number($('#fLaborCost').value)||0,place:$('#fPlace').value,notes:$('#fNotes').value};
   if(!r.date||!r.km){toast('Completează data și km');return;}
-  Store.addRecord(r); e.target.reset(); $('#fDate').value=new Date().toISOString().slice(0,10); renderAll(); toast('Salvat ✔');
+  const file=$('#fReceipt').files[0]; if(file){ toast('Se încarcă poza…'); const url=await Store.uploadReceipt(file); if(url) r.receiptUrl=url; }
+  await Store.addRecord(r); e.target.reset(); $('#fDate').value=new Date().toISOString().slice(0,10); renderAll(); toast('Salvat ✔');
   document.querySelector('[data-tab="history"]').click();
 };
 $('#fuelForm').onsubmit=e=>{e.preventDefault();
@@ -118,7 +119,7 @@ $('#searchHistory').oninput=renderHistory;$('#filterCat').onchange=renderHistory
 // Auth Google
 $('#authBtn').onclick=async()=>{
   const c=Store.getCloud();
-  if(!c){toast('Setează mai întâi Supabase în Setări');document.querySelector('[data-tab="settings"]').click();return;}
+  if(!c){toast('Se conectează la cloud…'); await Store.initCloud();}
   const {error}=await c.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.href}});
   if(error) toast(error.message);
 };

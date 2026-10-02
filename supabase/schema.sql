@@ -23,7 +23,7 @@ create table if not exists fuel_entries(
   vehicle_id uuid references vehicles(id) on delete cascade,
   date date not null, km int not null,
   liters numeric not null, total numeric not null,
-  full boolean default true,
+  full_tank boolean default true,
   created_at timestamptz default now()
 );
 create table if not exists documents(
@@ -42,3 +42,13 @@ drop policy if exists "own" on service_records; create policy "own" on service_r
 drop policy if exists "own" on fuel_entries; create policy "own" on fuel_entries for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 drop policy if exists "own" on documents; create policy "own" on documents for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 -- Storage pentru poze bonuri: creeaza bucketul "receipts" (public sau privat) din Dashboard > Storage.
+
+-- Bucket poze bonuri
+insert into storage.buckets (id, name, public) values ('receipts','receipts', true)
+on conflict (id) do update set public = true;
+drop policy if exists "public read receipts" on storage.objects;
+create policy "public read receipts" on storage.objects for select using (bucket_id='receipts');
+drop policy if exists "own upload receipts" on storage.objects;
+create policy "own upload receipts" on storage.objects for insert with check (bucket_id='receipts' and auth.uid()::text = (storage.foldername(name))[1]);
+drop policy if exists "own delete receipts" on storage.objects;
+create policy "own delete receipts" on storage.objects for delete using (bucket_id='receipts' and auth.uid()::text = (storage.foldername(name))[1]);
