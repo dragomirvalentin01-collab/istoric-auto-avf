@@ -1,4 +1,7 @@
--- Istoric Auto PWA: ruleaza in Supabase SQL editor
+-- Ulei + Filtre + Notite (simplificat, de la zero)
+drop table if exists service_records;
+drop table if exists fuel_entries;
+drop table if exists documents;
 create table if not exists vehicles(
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
@@ -6,49 +9,27 @@ create table if not exists vehicles(
   year int, vin text, current_km int,
   created_at timestamptz default now()
 );
-create table if not exists service_records(
+create table if not exists oil_changes(
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
   vehicle_id uuid references vehicles(id) on delete cascade,
   date date not null, km int not null,
-  category text not null, part text, brand text, spec text,
-  condition text default 'noua',
+  brand text, spec text, filters text[] default '{}',
   part_cost numeric default 0, labor_cost numeric default 0,
-  place text, notes text, receipt_url text,
+  place text, notes text,
   created_at timestamptz default now()
 );
-create table if not exists fuel_entries(
+create table if not exists notes(
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
   vehicle_id uuid references vehicles(id) on delete cascade,
-  date date not null, km int not null,
-  liters numeric not null, total numeric not null,
-  full_tank boolean default true,
-  created_at timestamptz default now()
-);
-create table if not exists documents(
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users(id) on delete cascade,
-  vehicle_id uuid references vehicles(id) on delete cascade,
-  type text not null, date date, km int, note text,
+  date date not null, km int,
+  title text not null, body text,
   created_at timestamptz default now()
 );
 alter table vehicles enable row level security;
-alter table service_records enable row level security;
-alter table fuel_entries enable row level security;
-alter table documents enable row level security;
+alter table oil_changes enable row level security;
+alter table notes enable row level security;
 drop policy if exists "own" on vehicles; create policy "own" on vehicles for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-drop policy if exists "own" on service_records; create policy "own" on service_records for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-drop policy if exists "own" on fuel_entries; create policy "own" on fuel_entries for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-drop policy if exists "own" on documents; create policy "own" on documents for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
--- Storage pentru poze bonuri: creeaza bucketul "receipts" (public sau privat) din Dashboard > Storage.
-
--- Bucket poze bonuri
-insert into storage.buckets (id, name, public) values ('receipts','receipts', true)
-on conflict (id) do update set public = true;
-drop policy if exists "public read receipts" on storage.objects;
-create policy "public read receipts" on storage.objects for select using (bucket_id='receipts');
-drop policy if exists "own upload receipts" on storage.objects;
-create policy "own upload receipts" on storage.objects for insert with check (bucket_id='receipts' and auth.uid()::text = (storage.foldername(name))[1]);
-drop policy if exists "own delete receipts" on storage.objects;
-create policy "own delete receipts" on storage.objects for delete using (bucket_id='receipts' and auth.uid()::text = (storage.foldername(name))[1]);
+drop policy if exists "own" on oil_changes; create policy "own" on oil_changes for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
+drop policy if exists "own" on notes; create policy "own" on notes for all using (auth.uid()=user_id) with check (auth.uid()=user_id);

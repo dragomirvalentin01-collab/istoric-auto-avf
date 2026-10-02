@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Istoric Auto — Audi A4 B6 AVF</title>
+<title>Ulei + Filtre — Audi A4 B6</title>
 <meta name="theme-color" content="#0f172a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -13,140 +13,88 @@
 </head>
 <body>
 <header class="topbar">
-  <div>
-    <h1>🚗 Istoric Auto</h1>
-    <p id="vehicleSubtitle">Audi A4 B6 Avant 1.9 TDI AVF</p>
-  </div>
-  <div class="top-actions">
-    <span id="kmBadge" class="km-badge">— km</span>
-    <button id="authBtn" class="btn small">Login Google</button>
-  </div>
+  <div><h1>🚗 Ulei + Filtre</h1><p id="vehicleSubtitle">Audi A4 B6 Avant 1.9 TDI AVF</p></div>
+  <div class="top-actions"><span id="kmBadge" class="km-badge">— km</span><button id="authBtn" class="btn small">Login Google</button></div>
 </header>
-
 <nav class="tabs">
   <button data-tab="dashboard" class="active">Bord</button>
+  <button data-tab="add">+ Ulei</button>
   <button data-tab="history">Istoric</button>
-  <button data-tab="add">+ Adaugă</button>
-  <button data-tab="fuel">Consum</button>
-  <button data-tab="docs">Acte</button>
+  <button data-tab="notes">Notițe</button>
   <button data-tab="settings">Setări</button>
 </nav>
-
 <main>
   <section id="tab-dashboard" class="tab active">
     <div class="card highlight">
-      <div class="row-between">
-        <div>
-          <label>Kilometraj curent</label>
-          <div class="km-edit"><input id="currentKm" type="number" inputmode="numeric" placeholder="ex. 335000"> <button class="btn small" id="saveKm">Salvează</button></div>
-        </div>
-        <div class="stats-mini"><div><b id="totalCostYear">0 lei</b><span>cheltuit anul ăsta</span></div></div>
-      </div>
+      <label>Kilometraj curent</label>
+      <div class="km-edit"><input id="currentKm" type="number" inputmode="numeric" placeholder="ex. 335000"> <button class="btn small" id="saveKm">Salvează</button></div>
     </div>
-    <div id="alerts"></div>
-    <h3>Următoarele scadențe</h3>
-    <div id="upcoming" class="grid"></div>
-    <h3>Ultimele lucrări</h3>
-    <div id="recentList" class="list"></div>
+    <div id="oilStatus"></div>
+    <h3>Ultimele notițe</h3>
+    <div id="recentNotes" class="list"></div>
   </section>
-
-  <section id="tab-history" class="tab">
-    <div class="filters">
-      <input id="searchHistory" placeholder="Caută: ex. injectoare, Brembo, service...">
-      <select id="filterCat"><option value="">Toate categoriile</option></select>
-      <select id="filterCondition"><option value="">Orice stare</option><option value="noua">Nouă</option><option value="reconditionata">Recondiționată</option><option value="sh">Second-hand</option></select>
-    </div>
-    <div id="historyList" class="list"></div>
-  </section>
-
   <section id="tab-add" class="tab">
-    <form id="recordForm" class="card form">
-      <h3>Înregistrare nouă</h3>
+    <form id="oilForm" class="card form">
+      <h3>Schimb ulei + filtre</h3>
       <div class="grid2">
-        <label>Data<input type="date" id="fDate" required></label>
-        <label>Km la lucrare<input type="number" id="fKm" required placeholder="ex. 334500"></label>
+        <label>Data<input type="date" id="oDate" required></label>
+        <label>Km<input type="number" id="oKm" required placeholder="ex. 335000"></label>
       </div>
       <div class="grid2">
-        <label>Categorie<select id="fCat" required></select></label>
-        <label>Subcategorie / piesă<input id="fPart" list="partSuggestions" placeholder="ex. kit distribuție, arcuri spate"><datalist id="partSuggestions"></datalist></label>
+        <label>Ulei (producător)<select id="oBrand"></select></label>
+        <label>Specificație<select id="oSpec"></select></label>
       </div>
-      <div class="grid2">
-        <label>Producător<select id="fBrand"></select></label>
-        <label>Specificație<input id="fSpec" list="specSuggestions" placeholder="ex. 5W-40 505.01"><datalist id="specSuggestions"></datalist></label>
-      </div>
-      <label>Stare piesă
-        <div class="chips" id="condChips">
-          <button type="button" data-v="noua" class="chip active">Nouă</button>
-          <button type="button" data-v="reconditionata" class="chip">Recondiționată</button>
-          <button type="button" data-v="sh" class="chip">Second-hand</button>
-          <button type="button" data-v="manopera" class="chip">Doar manoperă</button>
+      <label>Filtre schimbate
+        <div class="chips" id="filterChips">
+          <button type="button" data-v="ulei" class="chip active">Ulei</button>
+          <button type="button" data-v="aer" class="chip active">Aer</button>
+          <button type="button" data-v="combustibil" class="chip active">Combustibil</button>
+          <button type="button" data-v="polen" class="chip active">Polen</button>
         </div>
       </label>
       <div class="grid2">
-        <label>Cost piesă (lei)<input type="number" id="fPartCost" placeholder="0"></label>
-        <label>Cost manoperă (lei)<input type="number" id="fLaborCost" placeholder="0"></label>
+        <label>Cost piese (lei)<input type="number" id="oPartCost" placeholder="0"></label>
+        <label>Manoperă (lei)<input type="number" id="oLaborCost" placeholder="0"></label>
       </div>
+      <label>Service<input id="oPlace" placeholder="ex. Service Militari"></label>
+      <label>Notițe<textarea id="oNotes" rows="2" placeholder="ex. totul schimbat, data viitoare…"></textarea></label>
+      <button class="btn primary" type="submit">Salvează schimbul</button>
+    </form>
+  </section>
+  <section id="tab-history" class="tab">
+    <div id="historyList" class="list"></div>
+  </section>
+  <section id="tab-notes" class="tab">
+    <form id="noteForm" class="card form">
+      <h3>Notiță nouă <span class="muted">(piese, reparații, orice)</span></h3>
       <div class="grid2">
-        <label>Service / unde<input id="fPlace" placeholder="ex. Service Militari"></label>
-        <label>Poză bon (opțional)<input type="file" id="fReceipt" accept="image/*"></label>
+        <label>Data<input type="date" id="nDate" required></label>
+        <label>Km (opțional)<input type="number" id="nKm" placeholder="—"></label>
       </div>
-      <label>Notițe<textarea id="fNotes" rows="2" placeholder="ex. recondiționat injectoare PD, schimbat arcuri + telescoape spate"></textarea></label>
-      <div id="lastUsedHint" class="hint"></div>
-      <button class="btn primary" type="submit">Salvează înregistrarea</button>
+      <label>Titlu<input id="nTitle" required placeholder="ex. Injectoare recondiționate"></label>
+      <label>Detalii<textarea id="nBody" rows="3" placeholder="ex. recondiționat injectoare PD la service X, 800 lei + 400 manopera, arcuri spate…"></textarea></label>
+      <button class="btn primary" type="submit">Salvează notița</button>
     </form>
+    <div class="filters"><input id="searchNotes" placeholder="Caută în notițe…"></div>
+    <div id="notesList" class="list"></div>
   </section>
-
-  <section id="tab-fuel" class="tab">
-    <div class="card"><b id="avgCons">— L/100km</b><span class="muted"> medie calculată din ultimele plinuri complete</span></div>
-    <form id="fuelForm" class="card form">
-      <h3>Plin nou</h3>
-      <div class="grid2"><label>Data<input type="date" id="fuDate" required></label><label>Km<input type="number" id="fuKm" required></label></div>
-      <div class="grid2"><label>Litri<input type="number" step="0.01" id="fuLiters" required></label><label>Total lei<input type="number" step="0.01" id="fuTotal" required></label></div>
-      <label class="check"><input type="checkbox" id="fuFull" checked> Plin complet (pentru calcul consum)</label>
-      <button class="btn primary" type="submit">Adaugă plin</button>
-    </form>
-    <div id="fuelList" class="list"></div>
-  </section>
-
-  <section id="tab-docs" class="tab">
-    <div class="card form">
-      <h3>Acte (ITP / RCA / Rovinietă)</h3>
-      <div class="grid2"><label>Tip<select id="dType"><option>ITP</option><option>RCA</option><option>Rovinietă</option><option>Asigurare CASCO</option></select></label><label>Expiră la<input type="date" id="dDate"></label></div>
-      <div class="grid2"><label>Km (dacă e cazul)<input type="number" id="dKm" placeholder="—"></label><label>Notă<input id="dNote" placeholder="ex. nr. poliță"></label></div>
-      <button class="btn primary" id="addDoc" type="button">Adaugă / actualizează</button>
-    </div>
-    <div id="docsList" class="list"></div>
-  </section>
-
   <section id="tab-settings" class="tab">
     <div class="card form">
       <h3>Mașină</h3>
-      <label>Nume afișat<input id="sName" value="Audi A4 B6 Avant 1.9 TDI AVF"></label>
-      <div class="grid2"><label>An<input id="sYear" type="number" value="2003"></input></label><label>VIN (opțional)<input id="sVin" placeholder="WAU..."></input></label></div>
-      <button class="btn" id="saveVehicle">Salvează</button>
+      <label>Nume<input id="sName" value="Audi A4 B6 Avant 1.9 TDI AVF"></label>
+      <button class="btn" id="saveVehicle" type="button">Salvează</button>
       <hr>
-      <h3>Conexiune cloud (Supabase)</h3>
-      <p class="muted">Ca la pontaj: login Google + sincronizare. Dacă lași gol, aplicația merge local (demo) pe telefonul ăsta.</p>
-      <label>Supabase URL<input id="sUrl" placeholder="https://xyz.supabase.co"></label>
-      <label>Anon key<input id="sKey" placeholder="eyJ..."></label>
-      <button class="btn" id="saveCloud">Conectează</button>
-      <button class="btn danger-ghost" id="wipeLocal">Șterge datele locale</button>
-      <p class="muted">SQL-ul pentru tabele e în <code>supabase/schema.sql</code>. Activează Google provider în Supabase Auth.</p>
-    </div>
-    <div class="card">
-      <h3>Preseturi AVF (intervale)</h3>
-      <div id="presetsList" class="list"></div>
+      <h3>Cloud</h3>
+      <p class="muted" id="cloudStatus">Local, fără sincronizare.</p>
+      <button class="btn danger-ghost" id="wipeLocal" type="button">Șterge tot local</button>
     </div>
   </section>
 </main>
-
 <div id="toast"></div>
 <script src="js/config.js"></script>
 <script src="js/presets.js"></script>
 <script src="js/store.js"></script>
 <script src="js/app.js"></script>
-<script>
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
-</script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});</script>
 </body>
 </html>
